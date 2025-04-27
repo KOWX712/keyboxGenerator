@@ -13,24 +13,26 @@ UB = 12 # the upper bound of the length of the device ID
 CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 keyboxFormatter = """<?xml version="1.0"?>
 <AndroidAttestation>
-<NumberOfKeyboxes>1</NumberOfKeyboxes>
-<Keybox DeviceID="{0}">
-<Key algorithm="ecdsa">
-<PrivateKey format="pem">
-{1}</PrivateKey>
-<CertificateChain>
-<NumberOfCertificates>1</NumberOfCertificates>
-<Certificate format="pem">
-{2}</Certificate>
-</CertificateChain>
-</Key>
-<Key algorithm="rsa">
-<PrivateKey format="pem">
-{3}</PrivateKey>
-</Key>
-</Keybox>
-</AndroidAttestation>
-"""
+	<NumberOfKeyboxes>1</NumberOfKeyboxes>
+	<Keybox DeviceID="{0}">
+		<Key algorithm="ecdsa">
+			<PrivateKey format="pem">
+{1}
+			</PrivateKey>
+			<CertificateChain>
+				<NumberOfCertificates>1</NumberOfCertificates>
+				<Certificate format="pem">
+{2}
+				</Certificate>
+			</CertificateChain>
+		</Key>
+		<Key algorithm="rsa">
+			<PrivateKey format="pem">
+{3}
+			</PrivateKey>
+		</Key>
+	</Keybox>
+</AndroidAttestation>"""
 
 
 def canOverwrite(flags:list, idx:int, prompts:str|tuple|list|set) -> bool:
@@ -170,22 +172,26 @@ def main() -> int:
 		return 19
 	
 	# Keybox Generation #
-	keybox = keyboxFormatter.format(deviceID, ecPrivateKey, certificate, rsaPrivateKey)
-	print("Generated keybox with a length of {0}: ".format(len(keybox)))
-	print(keybox)
+	ecPrivateKey_indented = "\n".join(f"				{line}" for line in ecPrivateKey.splitlines())
+	certificate_indented = "\n".join(f"					{line}" for line in certificate.splitlines())
+	rsaPrivateKey_indented = "\n".join(f"				{line}" for line in rsaPrivateKey.splitlines())
+	
+	keybox = keyboxFormatter.format(deviceID, ecPrivateKey_indented, certificate_indented, rsaPrivateKey_indented)
+	print("Generated keybox with a length of {0}: ".format(len(keybox)), end="")
+	print(keybox, end="")
 	if keyboxFilePath is not None and (flags[2] or canOverwrite(flags, 2, keyboxFilePath)):
 		try:
 			with open(keyboxFilePath, "w", encoding = "utf-8") as f:
 				f.write(keybox)
-			print("Successfully wrote the keybox to \"{0}\". ".format(keyboxFilePath))
+			print("Successfully wrote the keybox to \"{0}\". ".format(keyboxFilePath), end="")
 			pressTheEnterKeyToExit(EXIT_SUCCESS)
 			return EXIT_SUCCESS
 		except BaseException as e:
-			print("Failed to write the keybox to \"{0}\". Details are as follows. \n{1}".format(keyboxFilePath, e))
+			print("Failed to write the keybox to \"{0}\". Details are as follows. \n{1}".format(keyboxFilePath, e), end="")
 			pressTheEnterKeyToExit(20)
 			return 20
 	else:
-		print("The keybox has not been written to any files. Please refer to the text above. ")
+		print("The keybox has not been written to any files. Please refer to the text above. ", end="")
 		pressTheEnterKeyToExit(EXIT_FAILURE)
 		return EXIT_FAILURE
 

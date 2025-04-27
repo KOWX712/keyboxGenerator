@@ -36,29 +36,7 @@ keyboxFormatter = """<?xml version="1.0"?>
 
 
 def canOverwrite(flags:list, idx:int, prompts:str|tuple|list|set) -> bool:
-	if isinstance(flags, list) and isinstance(idx, int) and -len(flags) <= idx < len(flags) and isinstance(prompts, (str, tuple, list, set)):
-		try:
-			if isinstance(prompts, str):
-				print("\"{0}\"".format(prompts))
-				choice = input("The file mentioned above exists. Overwrite or not [aYn]? ")
-			else:
-				print(prompts)
-				choice = input("At least one of the files mentioned above exists. Overwrite or not [aYn]? ")
-			if choice.upper() == "A":
-				for i in range((idx if idx >= 0 else len(flags) + idx), len(flags)): # overwirte the current file and all the following necessary files no matter whether they exist
-					flags[i] = True
-				return True
-			elif choice.upper() == "N":
-				return False
-			else:
-				flags[idx] = True
-				return True
-		except BaseException as e:
-			print(e)
-			return False
-	else:
-		input("#")
-		return False
+	return True
 
 def execute(commandline:str) -> int|None:
 	if isinstance(commandline, str):
